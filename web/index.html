@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RabbitCode Access</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ui-assets/styles.css">
+</head>
+<body>
+  <div class="background-glow glow-left"></div>
+  <div class="background-glow glow-right"></div>
+
+  <main class="shell">
+    <section class="hero-card">
+      <p class="eyebrow">RabbitCode • Auth Portal</p>
+      <h1>Registro, token y acceso en una sola interfaz.</h1>
+      <p class="hero-copy">
+        Crea tu usuario, recibe tu token y entra a una sesion protegida con una vista mas limpia
+        que la del contrato en Swagger.
+      </p>
+
+      <div class="hero-points">
+        <article>
+          <span>01</span>
+          <h2>Registro</h2>
+          <p>Alta rapida de clientes con respuesta de token inmediata.</p>
+        </article>
+        <article>
+          <span>02</span>
+          <h2>Login</h2>
+          <p>Autenticacion por nombre y telefono para recuperar tu token.</p>
+        </article>
+        <article>
+          <span>03</span>
+          <h2>Sesion</h2>
+          <p>Acceso protegido con token y vista del perfil cargada desde la API.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel-card">
+      <div class="tabs">
+        <button class="tab-button active" data-tab="registro">Registro</button>
+        <button class="tab-button" data-tab="login">Login</button>
+        <button class="tab-button" data-tab="token">Entrar con token</button>
+      </div>
+
+      <div id="feedback" class="feedback hidden"></div>
+
+      <section class="tab-panel active" data-panel="registro">
+        <form id="register-form" class="stack-form">
+          <label>
+            <span>Nombre</span>
+            <input name="nombre" type="text" placeholder="Camilo Rabbit" required>
+          </label>
+          <label>
+            <span>Correo</span>
+            <input name="correo" type="email" placeholder="camilo@rabbitcode.dev" required>
+          </label>
+          <label>
+            <span>Direccion</span>
+            <input name="direccion" type="text" placeholder="Av. Microservicios 8000" required>
+          </label>
+          <label>
+            <span>Telefono</span>
+            <input name="telefono" type="text" placeholder="4422102278" required>
+          </label>
+          <button type="submit" class="primary-button">Crear usuario y generar token</button>
+        </form>
+      </section>
+
+      <section class="tab-panel" data-panel="login">
+        <form id="login-form" class="stack-form">
+          <label>
+            <span>Nombre</span>
+            <input name="nombre" type="text" placeholder="Tu nombre de usuario" required>
+          </label>
+          <label>
+            <span>Telefono</span>
+            <input name="telefono" type="text" placeholder="Tu telefono registrado" required>
+          </label>
+          <button type="submit" class="primary-button">Iniciar sesion y recibir token</button>
+        </form>
+      </section>
+
+      <section class="tab-panel" data-panel="token">
+        <form id="token-form" class="stack-form">
+          <label>
+            <span>Pega tu token</span>
+            <textarea name="token" rows="6" placeholder="eyJhbGciOi..." required></textarea>
+          </label>
+          <button type="submit" class="primary-button">Entrar con token</button>
+        </form>
+      </section>
+
+      <section class="session-card">
+        <div class="session-header">
+          <div>
+            <p class="eyebrow">Sesion protegida</p>
+            <h2>Estado actual</h2>
+          </div>
+          <button id="logout-button" class="ghost-button" type="button">Cerrar sesion</button>
+        </div>
+
+        <div class="token-box">
+          <p>Token activo</p>
+          <code id="token-preview">Todavia no hay token cargado.</code>
+        </div>
+
+        <div class="profile-grid">
+          <article>
+            <p>Nombre</p>
+            <strong id="profile-name">Sin sesion</strong>
+          </article>
+          <article>
+            <p>Correo</p>
+            <strong id="profile-email">-</strong>
+          </article>
+          <article>
+            <p>Direccion</p>
+            <strong id="profile-address">-</strong>
+          </article>
+          <article>
+            <p>Telefono</p>
+            <strong id="profile-phone">-</strong>
+          </article>
+        </div>
+
+        <div class="list-block">
+          <div class="list-header">
+            <h3>Clientes protegidos</h3>
+            <button id="refresh-button" class="ghost-button" type="button">Refrescar</button>
+          </div>
+          <ul id="clientes-list" class="client-list">
+            <li>Inicia sesion para ver clientes desde <code>/clientes_seguro</code>.</li>
+          </ul>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="/ui-assets/app.js"></script>
+</body>
+</html>

@@ -21,6 +21,11 @@ class ClienteRegistro(BaseModel):
     direccion: str
     telefono: str
 
+
+class ClienteLogin(BaseModel):
+    nombre: str
+    telefono: str
+
 #Esta seccion define como debe de verse el patch
 class ClienteUpdate(BaseModel):
     nombre: Optional[str] = None
