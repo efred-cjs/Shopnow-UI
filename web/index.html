@@ -15,11 +15,12 @@
 
   <main class="shell">
     <section class="hero-card">
-      <p class="eyebrow">RabbitCode • Auth Portal</p>
+      <p class="eyebrow">RabbitCode Portal</p>
       <h1>Registro, token y acceso en una sola interfaz.</h1>
       <p class="hero-copy">
         Crea tu usuario, recibe tu token y entra a una sesion protegida con una vista mas limpia
-        que la del contrato en Swagger.
+        que la del contrato en Swagger. Cuando entres, podras revisar clientes, productos,
+        inventario y pedidos desde el mismo panel.
       </p>
 
       <div class="hero-points">
@@ -35,8 +36,8 @@
         </article>
         <article>
           <span>03</span>
-          <h2>Sesion</h2>
-          <p>Acceso protegido con token y vista del perfil cargada desde la API.</p>
+          <h2>Dashboard</h2>
+          <p>Acceso protegido con token y panel conectado con todos los servicios.</p>
         </article>
       </div>
     </section>
@@ -129,15 +130,66 @@
           </article>
         </div>
 
-        <div class="list-block">
+        <section class="dashboard-block">
           <div class="list-header">
-            <h3>Clientes protegidos</h3>
+            <h3>Panel del negocio</h3>
             <button id="refresh-button" class="ghost-button" type="button">Refrescar</button>
           </div>
-          <ul id="clientes-list" class="client-list">
-            <li>Inicia sesion para ver clientes desde <code>/clientes_seguro</code>.</li>
-          </ul>
-        </div>
+
+          <div class="service-grid">
+            <article class="service-card">
+              <div class="service-card-header">
+                <div>
+                  <p class="eyebrow">Clientes</p>
+                  <h3>Todos los clientes</h3>
+                </div>
+                <span id="clientes-count" class="metric-badge">0</span>
+              </div>
+              <ul id="clientes-list" class="client-list">
+                <li>Inicia sesion para ver los clientes.</li>
+              </ul>
+            </article>
+
+            <article class="service-card">
+              <div class="service-card-header">
+                <div>
+                  <p class="eyebrow">Productos</p>
+                  <h3>Catalogo disponible</h3>
+                </div>
+                <span id="productos-count" class="metric-badge">0</span>
+              </div>
+              <ul id="productos-list" class="client-list">
+                <li>Inicia sesion para ver productos.</li>
+              </ul>
+            </article>
+
+            <article class="service-card">
+              <div class="service-card-header">
+                <div>
+                  <p class="eyebrow">Inventario</p>
+                  <h3>Existencias</h3>
+                </div>
+                <span id="inventario-count" class="metric-badge">0</span>
+              </div>
+              <ul id="inventario-list" class="client-list">
+                <li>Inicia sesion para ver inventario.</li>
+              </ul>
+            </article>
+
+            <article class="service-card">
+              <div class="service-card-header">
+                <div>
+                  <p class="eyebrow">Pedidos</p>
+                  <h3>Pedidos registrados</h3>
+                </div>
+                <span id="pedidos-count" class="metric-badge">0</span>
+              </div>
+              <ul id="pedidos-list" class="client-list">
+                <li>Inicia sesion para ver pedidos.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
       </section>
     </section>
   </main>

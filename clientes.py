@@ -10,8 +10,9 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
 from jose import JWTError, jwt
 import pika
+import requests
 
-from config import get_data_file, get_rabbitmq_connection_parameters, is_rabbitmq_enabled
+from config import get_data_file, get_rabbitmq_connection_parameters, get_service_url, is_rabbitmq_enabled
 from datosCent import Cliente, ClienteLogin, ClienteRegistro, ClienteUpdate, bd_clientes
 
 SECRET_KEY = "tu_llave_secreta_super_segura_123"
@@ -21,6 +22,9 @@ security = HTTPBearer()
 FILE_NAME = get_data_file("CLIENTES_CSV", "clientes.csv")
 HEADERS = ["id_cliente", "nombre", "correo", "direccion", "telefono"]
 UI_DIR = Path(__file__).resolve().parent / "web"
+PRODUCTOS_URL = get_service_url("PRODUCTOS_URL", "PRODUCTOS_HOST", "PRODUCTOS_PORT", "http://127.0.0.1:8001")
+INVENTARIO_URL = get_service_url("INVENTARIO_URL", "INVENTARIO_HOST", "INVENTARIO_PORT", "http://127.0.0.1:8003")
+PEDIDOS_URL = get_service_url("PEDIDOS_URL", "PEDIDOS_HOST", "PEDIDOS_PORT", "http://127.0.0.1:8002")
 
 if not FILE_NAME.exists():
     with open(FILE_NAME, "w", newline="", encoding="utf-8") as f:
@@ -108,6 +112,24 @@ def enviar_evento(tipo_evento, data):
         print("Error enviando a RabbitMQ:", e)
 
 
+def consultar_servicio(url_base: str, ruta: str, nombre_servicio: str):
+    try:
+        respuesta = requests.get(f"{url_base}{ruta}", timeout=10)
+    except requests.exceptions.RequestException:
+        raise HTTPException(status_code=503, detail=f"No se pudo conectar con el servicio de {nombre_servicio}")
+
+    if respuesta.status_code != 200:
+        raise HTTPException(
+            status_code=503,
+            detail=f"El servicio de {nombre_servicio} respondio con error {respuesta.status_code}",
+        )
+
+    try:
+        return respuesta.json()
+    except ValueError:
+        raise HTTPException(status_code=503, detail=f"El servicio de {nombre_servicio} devolvio una respuesta invalida")
+
+
 def guardar_clientes(clientes: List[Cliente]):
     with open(FILE_NAME, "w", encoding="utf-8") as f:
         f.write("id_cliente,nombre,correo,direccion,telefono\n")
@@ -160,6 +182,46 @@ def obtener_perfil(token_data=Depends(verificar_token)):
         "autenticado": True,
         "cliente": token_data["cliente"].dict(),
         "token": token_data["payload"],
+    }
+
+
+@app.get("/panel/clientes", tags=["Panel"])
+def panel_clientes(token_data=Depends(verificar_token)):
+    return {
+        "cliente_actual": token_data["cliente"].dict(),
+        "items": [cliente.dict() for cliente in bd_clientes],
+    }
+
+
+@app.get("/panel/productos", tags=["Panel"])
+def panel_productos(token_data=Depends(verificar_token)):
+    return {
+        "items": consultar_servicio(PRODUCTOS_URL, "/productos", "productos"),
+    }
+
+
+@app.get("/panel/inventario", tags=["Panel"])
+def panel_inventario(token_data=Depends(verificar_token)):
+    return {
+        "items": consultar_servicio(INVENTARIO_URL, "/inventario", "inventario"),
+    }
+
+
+@app.get("/panel/pedidos", tags=["Panel"])
+def panel_pedidos(token_data=Depends(verificar_token)):
+    return {
+        "items": consultar_servicio(PEDIDOS_URL, "/pedidos", "pedidos"),
+    }
+
+
+@app.get("/panel/resumen", tags=["Panel"])
+def panel_resumen(token_data=Depends(verificar_token)):
+    return {
+        "cliente_actual": token_data["cliente"].dict(),
+        "clientes": [cliente.dict() for cliente in bd_clientes],
+        "productos": consultar_servicio(PRODUCTOS_URL, "/productos", "productos"),
+        "inventario": consultar_servicio(INVENTARIO_URL, "/inventario", "inventario"),
+        "pedidos": consultar_servicio(PEDIDOS_URL, "/pedidos", "pedidos"),
     }
 
 

@@ -1,10 +1,17 @@
 const feedback = document.getElementById("feedback");
 const tokenPreview = document.getElementById("token-preview");
-const clientesList = document.getElementById("clientes-list");
 const profileName = document.getElementById("profile-name");
 const profileEmail = document.getElementById("profile-email");
 const profileAddress = document.getElementById("profile-address");
 const profilePhone = document.getElementById("profile-phone");
+const clientesList = document.getElementById("clientes-list");
+const productosList = document.getElementById("productos-list");
+const inventarioList = document.getElementById("inventario-list");
+const pedidosList = document.getElementById("pedidos-list");
+const clientesCount = document.getElementById("clientes-count");
+const productosCount = document.getElementById("productos-count");
+const inventarioCount = document.getElementById("inventario-count");
+const pedidosCount = document.getElementById("pedidos-count");
 const tokenKey = "rabbitcode_token";
 
 function showFeedback(message, type = "success") {
@@ -26,12 +33,27 @@ function getToken() {
   return localStorage.getItem(tokenKey);
 }
 
+function setListState(element, message) {
+  element.innerHTML = `<li>${message}</li>`;
+}
+
+function resetDashboard() {
+  clientesCount.textContent = "0";
+  productosCount.textContent = "0";
+  inventarioCount.textContent = "0";
+  pedidosCount.textContent = "0";
+  setListState(clientesList, "Inicia sesion para ver los clientes.");
+  setListState(productosList, "Inicia sesion para ver productos.");
+  setListState(inventarioList, "Inicia sesion para ver inventario.");
+  setListState(pedidosList, "Inicia sesion para ver pedidos.");
+}
+
 function clearProfile() {
   profileName.textContent = "Sin sesion";
   profileEmail.textContent = "-";
   profileAddress.textContent = "-";
   profilePhone.textContent = "-";
-  clientesList.innerHTML = "<li>Inicia sesion para ver clientes desde <code>/clientes_seguro</code>.</li>";
+  resetDashboard();
 }
 
 function clearToken() {
@@ -47,15 +69,15 @@ function renderProfile(cliente) {
   profilePhone.textContent = cliente.telefono;
 }
 
-function renderClientes(clientes) {
-  if (!clientes.length) {
-    clientesList.innerHTML = "<li>No hay clientes registrados.</li>";
+function renderCollection(element, countElement, items, formatter, emptyMessage) {
+  countElement.textContent = String(items.length);
+
+  if (!items.length) {
+    setListState(element, emptyMessage);
     return;
   }
 
-  clientesList.innerHTML = clientes
-    .map((cliente) => `<li><strong>${cliente.nombre}</strong> • ${cliente.correo} • ${cliente.telefono}</li>`)
-    .join("");
+  element.innerHTML = items.map((item) => `<li>${formatter(item)}</li>`).join("");
 }
 
 async function apiRequest(path, options = {}) {
@@ -99,12 +121,41 @@ async function hydrateSession() {
     });
     renderProfile(perfil.cliente);
 
-    const clientes = await apiRequest("/clientes_seguro", {
+    const resumen = await apiRequest("/panel/resumen", {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    renderClientes(clientes);
+
+    renderCollection(
+      clientesList,
+      clientesCount,
+      resumen.clientes,
+      (cliente) => `<strong>${cliente.nombre}</strong> | ${cliente.correo} | ${cliente.telefono}`,
+      "No hay clientes registrados.",
+    );
+    renderCollection(
+      productosList,
+      productosCount,
+      resumen.productos,
+      (producto) => `<strong>#${producto.id_producto}</strong> | ${producto.descripcion} | $${producto.costo}`,
+      "No hay productos registrados.",
+    );
+    renderCollection(
+      inventarioList,
+      inventarioCount,
+      resumen.inventario,
+      (item) => `<strong>Producto ${item.id_producto}</strong> | Stock disponible: ${item.cantidad}`,
+      "No hay inventario registrado.",
+    );
+    renderCollection(
+      pedidosList,
+      pedidosCount,
+      resumen.pedidos,
+      (pedido) =>
+        `<strong>Pedido ${pedido.id_pedido}</strong> | Cliente ${pedido.id_cliente} | Producto ${pedido.id_producto} | Cantidad ${pedido.cantidad} | Total $${pedido.costo}`,
+      "No hay pedidos registrados.",
+    );
   } catch (error) {
     clearToken();
     showFeedback(error.message, "error");
@@ -136,7 +187,7 @@ document.getElementById("register-form").addEventListener("submit", async (event
     });
     setToken(data.token);
     renderProfile(data.cliente);
-    showFeedback("Usuario registrado. Token generado y sesion iniciada.");
+    showFeedback("Usuario registrado. El panel completo ya quedo disponible.");
     await hydrateSession();
     event.currentTarget.reset();
   } catch (error) {
@@ -158,7 +209,7 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
     });
     setToken(data.token);
     renderProfile(data.cliente);
-    showFeedback("Sesion iniciada. El token ya quedo cargado.");
+    showFeedback("Sesion iniciada. Ya puedes ver clientes, productos, inventario y pedidos.");
     await hydrateSession();
     event.currentTarget.reset();
   } catch (error) {
@@ -180,14 +231,16 @@ document.getElementById("token-form").addEventListener("submit", async (event) =
 
   setToken(token);
   await hydrateSession();
-  showFeedback("Token cargado. Si es valido, la sesion ya quedo activa.");
+  if (getToken()) {
+    showFeedback("Token cargado. El dashboard ya se conecto con los demas servicios.");
+  }
 });
 
 document.getElementById("refresh-button").addEventListener("click", async () => {
   hideFeedback();
   await hydrateSession();
   if (getToken()) {
-    showFeedback("Sesion refrescada desde la API.");
+    showFeedback("Datos actualizados desde clientes, productos, inventario y pedidos.");
   }
 });
 
