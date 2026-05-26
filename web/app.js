@@ -18,6 +18,12 @@ const productoForm = document.getElementById("producto-form");
 const inventarioForm = document.getElementById("inventario-form");
 const pedidoForm = document.getElementById("pedido-form");
 const tokenKey = "shopnowui_token";
+const localFrontendPorts = new Set(["3000", "5173", "5500", "5501"]);
+const defaultLocalApiBase = "http://127.0.0.1:8000";
+
+const apiBase =
+  window.SHOPNOW_API_BASE ||
+  (window.location.protocol === "file:" || localFrontendPorts.has(window.location.port) ? defaultLocalApiBase : "");
 
 let summaryState = {
   clientes: [],
@@ -152,7 +158,7 @@ async function apiRequest(path, options = {}, requireAuth = false) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(path, {
+  const response = await fetch(`${apiBase}${path}`, {
     ...options,
     headers,
   });
@@ -169,7 +175,12 @@ async function apiRequest(path, options = {}, requireAuth = false) {
       clearToken();
       clearProtectedState();
     }
-    const detail = data && typeof data.detail === "string" ? data.detail : "Ocurrio un error en la solicitud.";
+    const detail =
+      response.status === 404
+        ? `No encontre ${path}. Revisa que FastAPI este corriendo en ${apiBase || window.location.origin}.`
+        : data && typeof data.detail === "string"
+          ? data.detail
+          : "Ocurrio un error en la solicitud.";
     throw new Error(detail);
   }
 

@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 
 from fastapi import Body, Depends, FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from fastapi.staticfiles import StaticFiles
@@ -52,6 +53,23 @@ app = FastAPI(
     title="Shopnow Unified API",
     description="Servicio unificado para clientes, productos, inventario, pedidos e interfaz web.",
     version="3.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:5500",
+        "http://localhost:5500",
+        "http://127.0.0.1:5501",
+        "http://localhost:5501",
+        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "http://127.0.0.1:3000",
+        "http://localhost:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.mount("/ui-assets", StaticFiles(directory=UI_DIR), name="ui-assets")
@@ -232,6 +250,24 @@ def normalizar_estado(estado: str | None) -> str:
 @app.get("/", include_in_schema=False)
 def interfaz_principal():
     return FileResponse(UI_DIR / "index.html")
+
+
+@app.get("/web", include_in_schema=False)
+@app.get("/web/index.html", include_in_schema=False)
+def interfaz_web_alias():
+    return FileResponse(UI_DIR / "index.html")
+
+
+@app.get("/app.js", include_in_schema=False)
+@app.get("/web/app.js", include_in_schema=False)
+def frontend_script():
+    return FileResponse(UI_DIR / "app.js", media_type="application/javascript")
+
+
+@app.get("/styles.css", include_in_schema=False)
+@app.get("/web/styles.css", include_in_schema=False)
+def frontend_styles():
+    return FileResponse(UI_DIR / "styles.css", media_type="text/css")
 
 
 @app.get("/health", tags=["Infra"])
@@ -612,4 +648,3 @@ def actualizar_pedido(id_pedido: int, datos_nuevos: PedidoUpdate, token_data=Dep
 
     publicar_evento("pedidos", "pedido_actualizado", serializar_pedido(pedido))
     return {"mensaje": "Pedido actualizado", "datos": serializar_pedido(pedido)}
-
