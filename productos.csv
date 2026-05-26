@@ -1,2 +1,2 @@
-id_producto,descripcion,costo
-1,Laptop,15000
+id_producto,descripcion,precio,activo
+1,Laptop,15000.00,True

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RabbitCode Access</title>
+  <title>Shopnow Control Center</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
@@ -15,34 +15,34 @@
 
   <main class="shell">
     <section class="hero-card">
-      <p class="eyebrow">RabbitCode Portal</p>
-      <h1>Registro, token y acceso en una sola interfaz.</h1>
+      <p class="eyebrow">Shopnow Unified Service</p>
+      <h1>Un panel para clientes, productos, inventario y pedidos.</h1>
       <p class="hero-copy">
-        Crea tu usuario, recibe tu token y entra a una sesion protegida con una vista mas limpia
-        que la del contrato en Swagger. Cuando entres, podras revisar clientes, productos,
-        inventario y pedidos desde el mismo panel.
+        Esta version deja tu contrato listo para Render como un solo servicio.
+        Conserva las APIs base, agrega campos faltantes utiles del repo de referencia y
+        monta una interfaz administrativa para operar todo desde el mismo lugar.
       </p>
 
       <div class="hero-points">
         <article>
           <span>01</span>
-          <h2>Registro</h2>
-          <p>Alta rapida de clientes con respuesta de token inmediata.</p>
+          <h2>Acceso</h2>
+          <p>Registro, login y token en la misma pantalla para entrar rapido al flujo completo.</p>
         </article>
         <article>
           <span>02</span>
-          <h2>Login</h2>
-          <p>Autenticacion por nombre y telefono para recuperar tu token.</p>
+          <h2>Gobierno</h2>
+          <p>Clientes y productos ahora manejan estado activo, y pedidos muestran mejor contexto.</p>
         </article>
         <article>
           <span>03</span>
-          <h2>Dashboard</h2>
-          <p>Acceso protegido con token y panel conectado con todos los servicios.</p>
+          <h2>Operacion</h2>
+          <p>Inventario, pedidos y catalogo quedan conectados dentro de una sola API lista para desplegar.</p>
         </article>
       </div>
     </section>
 
-    <section class="panel-card">
+    <section class="workspace-card">
       <div class="tabs">
         <button class="tab-button active" data-tab="registro">Registro</button>
         <button class="tab-button" data-tab="login">Login</button>
@@ -55,21 +55,21 @@
         <form id="register-form" class="stack-form">
           <label>
             <span>Nombre</span>
-            <input name="nombre" type="text" placeholder="Camilo Rabbit" required>
+            <input name="nombre" type="text" placeholder="Camilo Shopnow" required>
           </label>
           <label>
             <span>Correo</span>
-            <input name="correo" type="email" placeholder="camilo@rabbitcode.dev" required>
+            <input name="correo" type="email" placeholder="camilo@shopnow.app" required>
           </label>
           <label>
             <span>Direccion</span>
-            <input name="direccion" type="text" placeholder="Av. Microservicios 8000" required>
+            <input name="direccion" type="text" placeholder="Av. Render 10000" required>
           </label>
           <label>
             <span>Telefono</span>
             <input name="telefono" type="text" placeholder="4422102278" required>
           </label>
-          <button type="submit" class="primary-button">Crear usuario y generar token</button>
+          <button type="submit" class="primary-button">Crear usuario y abrir panel</button>
         </form>
       </section>
 
@@ -77,13 +77,13 @@
         <form id="login-form" class="stack-form">
           <label>
             <span>Nombre</span>
-            <input name="nombre" type="text" placeholder="Tu nombre de usuario" required>
+            <input name="nombre" type="text" placeholder="Tu nombre registrado" required>
           </label>
           <label>
             <span>Telefono</span>
-            <input name="telefono" type="text" placeholder="Tu telefono registrado" required>
+            <input name="telefono" type="text" placeholder="Tu telefono" required>
           </label>
-          <button type="submit" class="primary-button">Iniciar sesion y recibir token</button>
+          <button type="submit" class="primary-button">Iniciar sesion</button>
         </form>
       </section>
 
@@ -91,7 +91,7 @@
         <form id="token-form" class="stack-form">
           <label>
             <span>Pega tu token</span>
-            <textarea name="token" rows="6" placeholder="eyJhbGciOi..." required></textarea>
+            <textarea name="token" rows="5" placeholder="eyJhbGciOi..." required></textarea>
           </label>
           <button type="submit" class="primary-button">Entrar con token</button>
         </form>
@@ -101,9 +101,12 @@
         <div class="session-header">
           <div>
             <p class="eyebrow">Sesion protegida</p>
-            <h2>Estado actual</h2>
+            <h2 id="session-title">Sin sesion iniciada</h2>
           </div>
-          <button id="logout-button" class="ghost-button" type="button">Cerrar sesion</button>
+          <div class="session-actions">
+            <button id="refresh-button" class="ghost-button" type="button">Refrescar</button>
+            <button id="logout-button" class="ghost-button" type="button">Cerrar sesion</button>
+          </div>
         </div>
 
         <div class="token-box">
@@ -130,64 +133,259 @@
           </article>
         </div>
 
-        <section class="dashboard-block">
-          <div class="list-header">
-            <h3>Panel del negocio</h3>
-            <button id="refresh-button" class="ghost-button" type="button">Refrescar</button>
+        <div class="summary-grid">
+          <article class="summary-card">
+            <p>Clientes</p>
+            <strong id="clientes-count">0</strong>
+          </article>
+          <article class="summary-card">
+            <p>Productos</p>
+            <strong id="productos-count">0</strong>
+          </article>
+          <article class="summary-card">
+            <p>Inventario</p>
+            <strong id="inventario-count">0</strong>
+          </article>
+          <article class="summary-card">
+            <p>Pedidos</p>
+            <strong id="pedidos-count">0</strong>
+          </article>
+        </div>
+
+        <div class="board-nav">
+          <button class="section-button active" data-section-target="clientes">Clientes</button>
+          <button class="section-button" data-section-target="productos">Productos</button>
+          <button class="section-button" data-section-target="inventario">Inventario</button>
+          <button class="section-button" data-section-target="pedidos">Pedidos</button>
+        </div>
+
+        <section class="entity-section active" data-section="clientes">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Directorio</p>
+              <h3>Clientes</h3>
+            </div>
+            <p class="section-copy">Da de alta, edita y activa o desactiva clientes sin salir del panel.</p>
           </div>
 
-          <div class="service-grid">
-            <article class="service-card">
-              <div class="service-card-header">
-                <div>
-                  <p class="eyebrow">Clientes</p>
-                  <h3>Todos los clientes</h3>
-                </div>
-                <span id="clientes-count" class="metric-badge">0</span>
+          <div class="section-grid">
+            <form id="cliente-form" class="editor-card">
+              <input type="hidden" name="id_cliente">
+              <label>
+                <span>Nombre</span>
+                <input name="nombre" type="text" required>
+              </label>
+              <label>
+                <span>Correo</span>
+                <input name="correo" type="email" required>
+              </label>
+              <label>
+                <span>Telefono</span>
+                <input name="telefono" type="text" required>
+              </label>
+              <label>
+                <span>Direccion</span>
+                <input name="direccion" type="text" required>
+              </label>
+              <label class="checkbox-row">
+                <input name="activo" type="checkbox" checked>
+                <span>Cliente activo</span>
+              </label>
+              <div class="form-actions">
+                <button type="submit" class="primary-button small-button">Guardar cliente</button>
+                <button type="button" id="cliente-reset" class="ghost-button">Limpiar</button>
               </div>
-              <ul id="clientes-list" class="client-list">
-                <li>Inicia sesion para ver los clientes.</li>
-              </ul>
-            </article>
+            </form>
 
-            <article class="service-card">
-              <div class="service-card-header">
-                <div>
-                  <p class="eyebrow">Productos</p>
-                  <h3>Catalogo disponible</h3>
-                </div>
-                <span id="productos-count" class="metric-badge">0</span>
+            <div class="table-card">
+              <div class="list-header">
+                <h3>Listado</h3>
               </div>
-              <ul id="productos-list" class="client-list">
-                <li>Inicia sesion para ver productos.</li>
-              </ul>
-            </article>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Nombre</th>
+                      <th>Correo</th>
+                      <th>Telefono</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="clientes-body">
+                    <tr><td colspan="6">Inicia sesion para ver clientes.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
 
-            <article class="service-card">
-              <div class="service-card-header">
-                <div>
-                  <p class="eyebrow">Inventario</p>
-                  <h3>Existencias</h3>
-                </div>
-                <span id="inventario-count" class="metric-badge">0</span>
-              </div>
-              <ul id="inventario-list" class="client-list">
-                <li>Inicia sesion para ver inventario.</li>
-              </ul>
-            </article>
+        <section class="entity-section" data-section="productos">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Catalogo</p>
+              <h3>Productos</h3>
+            </div>
+            <p class="section-copy">Compatibles con `precio`, `costo` y `costo_unitario` desde el mismo backend.</p>
+          </div>
 
-            <article class="service-card">
-              <div class="service-card-header">
-                <div>
-                  <p class="eyebrow">Pedidos</p>
-                  <h3>Pedidos registrados</h3>
-                </div>
-                <span id="pedidos-count" class="metric-badge">0</span>
+          <div class="section-grid">
+            <form id="producto-form" class="editor-card">
+              <input type="hidden" name="id_producto">
+              <label>
+                <span>Descripcion</span>
+                <input name="descripcion" type="text" required>
+              </label>
+              <label>
+                <span>Precio</span>
+                <input name="precio" type="number" step="0.01" min="0.01" required>
+              </label>
+              <label class="checkbox-row">
+                <input name="activo" type="checkbox" checked>
+                <span>Producto activo</span>
+              </label>
+              <div class="form-actions">
+                <button type="submit" class="primary-button small-button">Guardar producto</button>
+                <button type="button" id="producto-reset" class="ghost-button">Limpiar</button>
               </div>
-              <ul id="pedidos-list" class="client-list">
-                <li>Inicia sesion para ver pedidos.</li>
-              </ul>
-            </article>
+            </form>
+
+            <div class="table-card">
+              <div class="list-header">
+                <h3>Catalogo activo e historico</h3>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Descripcion</th>
+                      <th>Precio</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="productos-body">
+                    <tr><td colspan="5">Inicia sesion para ver productos.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="entity-section" data-section="inventario">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Operacion</p>
+              <h3>Inventario</h3>
+            </div>
+            <p class="section-copy">Inicializa, suma o fija cantidades usando productos reales del catalogo.</p>
+          </div>
+
+          <div class="section-grid">
+            <form id="inventario-form" class="editor-card">
+              <label>
+                <span>Modo</span>
+                <select name="modo">
+                  <option value="alta">Alta inicial</option>
+                  <option value="sumar">Sumar stock</option>
+                  <option value="fijar">Fijar cantidad</option>
+                </select>
+              </label>
+              <label>
+                <span>Producto</span>
+                <select name="id_producto" required></select>
+              </label>
+              <label>
+                <span>Cantidad</span>
+                <input name="cantidad" type="number" min="0" step="1" required>
+              </label>
+              <div class="form-actions">
+                <button type="submit" class="primary-button small-button">Aplicar movimiento</button>
+                <button type="button" id="inventario-reset" class="ghost-button">Limpiar</button>
+              </div>
+            </form>
+
+            <div class="table-card">
+              <div class="list-header">
+                <h3>Existencias</h3>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Descripcion</th>
+                      <th>Precio</th>
+                      <th>Stock</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="inventario-body">
+                    <tr><td colspan="6">Inicia sesion para ver inventario.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="entity-section" data-section="pedidos">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Flujo comercial</p>
+              <h3>Pedidos</h3>
+            </div>
+            <p class="section-copy">Los pedidos descuentan inventario y calculan total automaticamente.</p>
+          </div>
+
+          <div class="section-grid">
+            <form id="pedido-form" class="editor-card">
+              <label>
+                <span>Cliente</span>
+                <select name="id_cliente" required></select>
+              </label>
+              <label>
+                <span>Producto</span>
+                <select name="id_producto" required></select>
+              </label>
+              <label>
+                <span>Cantidad</span>
+                <input name="cantidad" type="number" min="1" step="1" required>
+              </label>
+              <div class="form-actions">
+                <button type="submit" class="primary-button small-button">Registrar pedido</button>
+                <button type="button" id="pedido-reset" class="ghost-button">Limpiar</button>
+              </div>
+            </form>
+
+            <div class="table-card">
+              <div class="list-header">
+                <h3>Historial</h3>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Cliente</th>
+                      <th>Producto</th>
+                      <th>Cantidad</th>
+                      <th>Total</th>
+                      <th>Estado</th>
+                      <th>Fecha</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pedidos-body">
+                    <tr><td colspan="7">Inicia sesion para ver pedidos.</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </section>
       </section>

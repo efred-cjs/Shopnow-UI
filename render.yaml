@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: shopnowui
+    runtime: docker
+    plan: free
+    autoDeployTrigger: commit
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: ENABLE_RABBITMQ
+        value: "false"

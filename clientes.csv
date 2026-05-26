@@ -1,2 +1,2 @@
-id_cliente,nombre,correo,direccion,telefono
-1,camilo,user@example.com,string,4422102278
+id_cliente,nombre,correo,direccion,telefono,activo
+1,camilo,user@example.com,string,4422102278,True

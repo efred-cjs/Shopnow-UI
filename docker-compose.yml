@@ -1,75 +1,13 @@
 services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  clientes:
+  shopnowui:
     build: .
-    command: uvicorn clientes:app --host 0.0.0.0 --port 8000
     ports:
       - "8000:8000"
     environment:
-      RABBITMQ_HOST: rabbitmq
+      PORT: 8000
+      ENABLE_RABBITMQ: "false"
     volumes:
       - ./clientes.csv:/app/clientes.csv
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-
-  productos:
-    build: .
-    command: uvicorn productos:app --host 0.0.0.0 --port 8001
-    ports:
-      - "8001:8001"
-    environment:
-      RABBITMQ_HOST: rabbitmq
-    volumes:
       - ./productos.csv:/app/productos.csv
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-
-  inventario:
-    build: .
-    command: uvicorn inventario:app --host 0.0.0.0 --port 8003
-    ports:
-      - "8003:8003"
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      PRODUCTOS_URL: http://productos:8001
-    volumes:
       - ./inventario.csv:/app/inventario.csv
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      productos:
-        condition: service_started
-
-  pedidos:
-    build: .
-    command: uvicorn pedidos:app --host 0.0.0.0 --port 8002
-    ports:
-      - "8002:8002"
-    environment:
-      RABBITMQ_HOST: rabbitmq
-      CLIENTES_URL: http://clientes:8000
-      PRODUCTOS_URL: http://productos:8001
-      INVENTARIO_URL: http://inventario:8003
-    volumes:
       - ./pedidos.csv:/app/pedidos.csv
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-      clientes:
-        condition: service_started
-      productos:
-        condition: service_started
-      inventario:
-        condition: service_started

@@ -1,1 +1,1 @@
-id_pedido,id_producto,id_cliente,cantidad,costo
+id_pedido,id_producto,id_cliente,cantidad,costo,estado,created_at
