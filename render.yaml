@@ -10,3 +10,7 @@ services:
     envVars:
       - key: ENABLE_RABBITMQ
         value: "false"
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_SSLMODE
+        value: require

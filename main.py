@@ -39,6 +39,7 @@ from datosCent import (
     guardar_productos,
     siguiente_id,
     sincronizar_archivos,
+    usando_postgres,
 )
 
 
@@ -77,7 +78,8 @@ app.mount("/ui-assets", StaticFiles(directory=UI_DIR), name="ui-assets")
 
 @app.on_event("startup")
 def startup_sync_files() -> None:
-    sincronizar_archivos()
+    if not usando_postgres():
+        sincronizar_archivos()
 
 
 def model_dump_compat(model) -> dict:
@@ -275,6 +277,7 @@ def health_check():
     return {
         "status": "ok",
         "service": "shopnowui",
+        "storage": "postgres" if usando_postgres() else "csv",
         "clientes": len(bd_clientes),
         "productos": len(bd_productos),
         "inventario": len(bd_inventario),

@@ -5,7 +5,8 @@ Esta version queda lista para desplegarse como un unico `Web Service` basado en 
 ## Resumen del enfoque
 
 - La interfaz web y la API viven en la misma app FastAPI.
-- `clientes`, `productos`, `inventario` y `pedidos` comparten proceso y almacenamiento CSV.
+- `clientes`, `productos`, `inventario` y `pedidos` comparten proceso.
+- El almacenamiento puede ser Postgres en Render o CSV local.
 - RabbitMQ queda desactivado en Render con `ENABLE_RABBITMQ=false`.
 - El contenedor arranca con `uvicorn main:app`.
 
@@ -20,6 +21,7 @@ Pasos:
 3. Deja que Render detecte `render.yaml`.
 4. Confirma el servicio `shopnowui`.
 5. Revisa que la variable `ENABLE_RABBITMQ=false` quede aplicada.
+6. Agrega `DATABASE_URL` como secreto usando la cadena de conexion de tu Postgres.
 
 ## Opcion 2: crear el servicio manualmente
 
@@ -36,6 +38,8 @@ Configura el servicio asi:
 Variables:
 
 - `ENABLE_RABBITMQ=false`
+- `DATABASE_URL=postgresql://USUARIO:CONTRASENA@HOST:5432/BASE_DE_DATOS`
+- `DATABASE_SSLMODE=require`
 
 No necesitas definir `PORT`; Render la inyecta y el Dockerfile ya la respeta.
 
@@ -44,6 +48,8 @@ No necesitas definir `PORT`; Render la inyecta y el Dockerfile ya la respeta.
 - `https://TU-SERVICIO.onrender.com/`
 - `https://TU-SERVICIO.onrender.com/docs`
 - `https://TU-SERVICIO.onrender.com/health`
+
+En `/health` debe aparecer `"storage":"postgres"` si `DATABASE_URL` quedo bien configurada.
 
 ## Flujo recomendado de prueba
 
@@ -57,8 +63,8 @@ No necesitas definir `PORT`; Render la inyecta y el Dockerfile ya la respeta.
 
 ## Importante
 
-En Render Free el filesystem sigue siendo temporal. Los CSV sirven para demo, pruebas y exposicion, pero pueden perderse si el servicio se reinicia o se vuelve a desplegar.
+Si usas Postgres, los datos quedan en la base de datos. Si desactivas `DATABASE_URL` o fuerzas `STORAGE_BACKEND=csv`, vuelves al modo local con archivos CSV.
 
 ## Siguiente paso si quieres persistencia real
 
-El cambio correcto seria mover los CSV a una base de datos persistente. Para esta entrega, el proyecto ya queda listo para Render como un solo servicio funcional.
+La app ya tiene persistencia por Postgres. El siguiente paso natural seria mover validaciones o procedimientos especificos de negocio a SQL si tu profesor lo pide.

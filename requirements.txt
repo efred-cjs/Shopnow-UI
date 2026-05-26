@@ -4,3 +4,4 @@ pydantic[email]
 python-jose
 pika
 requests
+psycopg2-binary
