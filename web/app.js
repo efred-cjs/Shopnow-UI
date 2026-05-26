@@ -1,4 +1,6 @@
 const feedback = document.getElementById("feedback");
+const authView = document.getElementById("auth-view");
+const appView = document.getElementById("app-view");
 const tokenPreview = document.getElementById("token-preview");
 const sessionTitle = document.getElementById("session-title");
 const profileName = document.getElementById("profile-name");
@@ -32,6 +34,16 @@ let summaryState = {
   pedidos: [],
   cliente_actual: null,
 };
+
+function showAuthView() {
+  authView.hidden = false;
+  appView.hidden = true;
+}
+
+function showAppView() {
+  authView.hidden = true;
+  appView.hidden = false;
+}
 
 function escapeHtml(value) {
   return String(value ?? "")
@@ -87,7 +99,7 @@ function getToken() {
 
 function clearToken() {
   localStorage.removeItem(tokenKey);
-  tokenPreview.textContent = "Todavia no hay token cargado.";
+  tokenPreview.textContent = "Sin token.";
 }
 
 function resetCounts() {
@@ -125,6 +137,7 @@ function clearProtectedState() {
   clearTables();
   populateEntitySelects();
   resetForms();
+  showAuthView();
 }
 
 function statusPill(activeOrState) {
@@ -372,6 +385,7 @@ function populateEntitySelects() {
 
 function renderSummary(summary) {
   summaryState = summary;
+  showAppView();
   renderProfile(summary.cliente_actual);
   renderClientes(summary.clientes);
   renderProductos(summary.productos);
@@ -504,9 +518,8 @@ document.getElementById("register-form").addEventListener("submit", async (event
       body: JSON.stringify(payload),
     });
     setToken(data.token);
-    renderProfile(data.cliente);
     await hydrateSession();
-    showFeedback("Usuario registrado. El panel ya quedo disponible.");
+    showFeedback("Usuario registrado. Sesion activa.");
     event.currentTarget.reset();
   } catch (error) {
     showFeedback(error.message, "error");
@@ -525,9 +538,8 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
       body: JSON.stringify(payload),
     });
     setToken(data.token);
-    renderProfile(data.cliente);
     await hydrateSession();
-    showFeedback("Sesion iniciada. Ya puedes administrar el servicio completo.");
+    showFeedback("Sesion iniciada.");
     event.currentTarget.reset();
   } catch (error) {
     showFeedback(error.message, "error");
@@ -760,7 +772,7 @@ document.getElementById("logout-button").addEventListener("click", () => {
   hideFeedback();
   clearToken();
   clearProtectedState();
-  showFeedback("Sesion cerrada localmente.");
+  showFeedback("Sesion cerrada.");
 });
 
 document.getElementById("cliente-reset").addEventListener("click", resetClientForm);
